@@ -1,25 +1,75 @@
+let handpose;
+let video;
+let predictions = [];
+let pointerX, pointerY, pointerZ;
+
 function setup() {
-  createCanvas(windowWidth,windowHeight);
+  // createCanvas(640, 480);
+  createCanvas(windowWidth, windowHeight);
+
+  video = createCapture(VIDEO);
+  video.size(width, height);
+fire_image=loadImage('tenor.gif')
+  handpose = ml5.handpose(video, modelReady);
+
+  // This sets up an event that fills the global variable "predictions"
+  // with an array every time new hand poses are detected
+  handpose.on("predict", (results) => {
+    predictions = results;
+  });
+
+  // Hide the video element, and just show the canvas
+  video.hide();
+}
+
+function modelReady() {
+  console.log("Model ready!");
 }
 
 function draw() {
-  background(0);
-  rectMode(CENTER)//設定方塊座標點以中心點為座標
-  ellipse(25,25,50)//在座標為(x,y)產生一個50直徑的圓
-  noFill(0)//不充滿顏色
+  translate(width, 0);
+  scale(-1, 1);
+  //  background(0);
 
-  //fill//充滿顏色為
-  stroke(255)//框線顏色為白色
-  //整個指令使左上角產生一個白色"255"的圓(背景為黑色"0")
+  image(video, 0, 0, width, height);
 
-  var w=mouseX/10
-  for(var j=0 ;j<height/50;j++)
-  {
-   {
-    for(var i=0 ;i<width/50;i++)
-   ellipse(25+50*i,25+50*j,w)
-   rect(25+50*i,25+50*j,mouseY)
-   ellipse(50+50*i,50+50*j,25)}
+  // We can call both functions to draw all keypoints and the skeletons
+  drawKeypoints();
+}
 
-   }
+// A function to draw ellipses over the detected keypoints
+function drawKeypoints() {
+  for (let i = 0; i < predictions.length; i += 1) {
+    const prediction = predictions[i];
+    for (let j = 0; j < prediction.landmarks.length; j += 1) {
+      const keypoint = prediction.landmarks[j];
+      fill(0, 255, 0);
+      noStroke();
+      if (j == 8) {				
+		pointerX = map(keypoint[0],0,640,0,width)
+		pointerY = map(keypoint[1],0,480,0,height)
+		ellipse(pointerX, pointerY, 10, 10);
+				image(fire_image,pointerX-20,pointerY-20,40,40);
+      } else
+      if (j == 16) {   
+		fill(255,0,0)
+        pointerX = map(keypoint[0],0,640,0,width)
+        pointerY = map(keypoint[1],0,480,0,height)
+		
+		pointerZ = keypoint[2]
+		print(pointerY)
+        ellipse(pointerX, pointerY, 10, 10);
+				image(fire_image,pointerX-20,pointerY-20,40,40);
+      } else
+      if (j == 20) {
+      
+		fill(255,255,0)
+        pointerX = map(keypoint[0],0,640,0,width)
+        pointerY = map(keypoint[1],0,480,0,height)
+        ellipse(pointerX, pointerY, 10, 10);
+				image(fire_image,pointerX-20,pointerY-20,40,40);
+      }
+    }
+  
+  }
 }
